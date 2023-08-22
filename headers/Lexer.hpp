@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <iostream>
 #include <ios>
@@ -10,6 +11,9 @@
 #include <vector>
 #include <optional>
 #include <variant>
+// #include <type_traits>
+// #include <utility>
+// #include <iomanip>
 
 bool sortfn(std::string& a, std::string& b) {
     return a.length() < b.length();
@@ -119,7 +123,6 @@ private:
         {"atomic_cancel", TK::ATOMIC_CANCEL}, {"atomic_noexcept", TK::ATOMIC_NOEXCEPT},
         {"reinterpret_cast", TK::REINTERPRET_CAST}
     };
-
     const std::vector<std::string> keywords = {
         "if", "or", "do", "try", "and", "xor", "asm", "for", "int",
         "new", "not", "long", "else", "enum", "this", "goto", "char",
@@ -139,6 +142,11 @@ private:
         "static_assert", "atomic_commit", "atomic_cancel", "atomic_noexcept",
         "reinterpret_cast"
     };
+
+    const std::unordered_set<std::string> type_keywords = {
+        "int", "char", "long", "void", "bool", "float", "short", "double",
+        "wchar_t", "char8_t", "char16_t", "char32_t"
+    };
     bool isOperator(std::string& buf);
     bool isKeyword(std::string& buf);
 
@@ -146,9 +154,6 @@ private:
 };
 
 void Lexer::file_read(std::string& path) {
-
-    
-
     std::stringstream filec;
     std::ifstream file;
     std::string line;
@@ -173,18 +178,66 @@ std::vector<std::pair<std::variant<
 
     for (int i = 0; i < file_content.length(); i++) {
 
-        if (true) {
+        // if (true) {
 
-        }
+        // }
         
-        // identifiers
-        else if (isalpha(file_content[i])) {
+        // identifiers or keywords
+        if (isalpha(file_content[i]) || file_content[i] == '_') {
             buffer += file_content[i];
             for (int idx = i+1; idx < file_content.length(); idx++) {
-                if (isalnum(file_content[idx]))
+
+                if (isalnum(file_content[idx]) || file_content[idx] == '_')
                     buffer += file_content[idx];
                 else {
-                    // tokens.push_back({Token::IDENTIFIER, buffer});
+                    // check for keyword, else token
+                    if (keyword_map.count(buffer) != 0 && 
+                        (idx == file_content.length() - 1 || file_content[idx+1] != ' ' || file_content[idx+1] != '\n')) {
+                        tokens.push_back({keyword_map.at(buffer), buffer});
+                        // std::nullopt});
+                    } 
+                    // check for type casts
+                    else if (type_keywords.count(buffer) != 0) {
+                        tokens.push_back({keyword_map.at(buffer),  buffer});
+                        // std::nullopt});
+                    }
+                    // Definitely an identifier
+                    else {
+                        tokens.push_back({Token::Identifier::BASE, buffer});
+                    }
+
+                    
+                    std::string tok;
+                    int tokval;
+                    switch (tokens.back().first.index()) {
+                        case 0:
+                            tok = "Token::Keyword";
+                            tokval = int(std::get<Token::Keyword>(tokens.back().first));
+                            break;
+                        
+                        case 1:
+                            tok = "Token::Operator";
+                            tokval = int(std::get<Token::Operator>(tokens.back().first));
+                            break;
+
+                        case 2:
+                            tok = "Token::Delimiter";
+                            tokval = int(std::get<Token::Delimiter>(tokens.back().first));
+                            break;
+
+                        case 3:
+                            tok = "Token::Literal";
+                            tokval = int(std::get<Token::Literal>(tokens.back().first));
+                            break;
+                        
+                        case 4:
+                            tok = "Token::Identifier";
+                            tokval = int(std::get<Token::Identifier>(tokens.back().first));
+                            break;
+                    }
+
+                    std::cout << "<" << tok << "::" << std::to_string(tokval) << ", " << (tokens.back().second).value_or("") << ">\n";
+                        
                     i = idx - 1;
                     buffer.clear();
                     break;
