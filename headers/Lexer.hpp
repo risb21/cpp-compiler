@@ -157,7 +157,6 @@ void Lexer::file_read(std::string& path) {
 
     while (getline(file, line))
         filec << line << std::endl;
-
     file.close();
 
     file_content = filec.str();
