@@ -3,10 +3,11 @@
 int main() {
     Lexer l;
 
-    std::string file = "readme.cpp";
+    std::string file = "./readme.cpp";
     l.file_read(file);
 
     auto tokens = l.analyze();
+
     std::string tok;
     int tokval;
     for (auto[toke, str]: tokens) {

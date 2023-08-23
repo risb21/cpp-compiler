@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Token_types.hpp"
+
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
@@ -17,48 +19,6 @@
 
 bool sortfn(std::string& a, std::string& b) {
     return a.length() < b.length();
-}
-
-namespace Token {
-    enum class Identifier {
-        BASE,
-    };
-
-    enum class Operator {
-        GTE, LTE, GT, LT, NOT_EQUAL, EQUATE, ASSIGN,
-        ADD, SUB, MULT, DIV, NOT, MOD, XOR, AND, OR,
-        LOGICAL_NOT, LOGICAL_AND, LOGICAL_OR, LSHIFT,
-        RSHIFT, ADD_ASSIGN, SUB_ASSIGN, MULT_ASSIGN,
-        DIV_ASSIGN, AND_ASSIGN, OR_ASSIGN, XOR_ASSIGN,
-        MOD_ASSIGN, LSHIFT_ASSIGN, RSHIFT_ASSIGN, UNARY_POS,
-        UNARY_NEG, TERNARY_IF, TERNARY_ELSE, INCREMENT, DECREMENT
-    };
-
-    enum class Keyword {
-        OR, DO, IF, INT, NOT, NEW, FOR, ASM, XOR, AND, TRY,
-        ENUM, CASE, BOOL, AUTO, VOID, CHAR, GOTO, THIS, ELSE, 
-        LONG, OR_EQ, CLASS, COMPL, THROW, CONST, SHORT, CATCH,
-        BREAK, BITOR, UNION, USING, FLOAT, WHILE, DELETE, DOUBLE,
-        BITAND, AND_EQ, EXPORT, EXTERN, FRIEND, XOR_EQ, INLINE,
-        STRUCT, STATIC, SIZEOF, SIGNED, NOT_EQ, RETURN, TYPEID,
-        PUBLIC, SWITCH, TYPEDEF, NULLPTR, PRIVATE, DEFAULT, MUTABLE,
-        CONCEPT, CHAR8_T, VIRTUAL, WCHAR_T, ALIGNOF, ALIGNAS, NOEXCEPT,
-        DECLTYPE, REFLEXPR, REGISTER, REQUIRES, CO_YIELD, EXPLICIT,
-        CO_AWAIT, VOLATILE, UNSIGNED, TYPENAME, OPERATOR, TEMPLATE,
-        CHAR16_T, CHAR32_T, CONTINUE, CO_RETURN, PROTECTED, CONSTINIT,
-        CONSTEXPR, CONSTEVAL, NAMESPACE, CONST_CAST, STATIC_CAST,
-        THREAD_LOCAL, SYNCHRONIZED, DYNAMIC_CAST, STATIC_ASSERT,ATOMIC_COMMIT,
-        ATOMIC_CANCEL, ATOMIC_NOEXCEPT, REINTERPRET_CAST, 
-    };
-
-    enum class Delimiter {
-        L_CURLY, R_CURLY, L_SQUARE, R_SQUARE, L_PARENTHESIS,
-        R_PARENTHESIS, L_ANGLED, R_ANGLED, SEMICOLON,
-    };
-
-    enum class Literal {
-        INT, FLOAT, STRING, CHAR, HEX, OCT, BIN, BOOL
-    };
 }
 
 class Lexer {
@@ -81,15 +41,29 @@ private:
 
     const std::string op3 = "<<=>>=",
         op2 = "==++--!=%=^=&=*=-=+=/=|=>><<<=>=&&||",
-        op1 = "!=-*&^%/><|";
+        op1 = "!=-+*&^%/><|";
 
     using TK = Token::Keyword;
     using TD = Token::Delimiter;
+    using TO = Token::Operator;
 
     const std::unordered_map<char, Token::Delimiter> delimiter_map = {
         {'{', TD::L_CURLY}, {'}', TD::R_CURLY}, {'(', TD::L_PARENTHESIS},
         {')', TD::R_PARENTHESIS}, {'[', TD::L_SQUARE}, {']', TD::L_CURLY},
         {'<', TD::L_ANGLED}, {'>', TD::R_ANGLED}, {';', TD::SEMICOLON}
+    };
+
+    const std::unordered_map<std::string, Token::Operator> operator_map = {
+        {"<<=", TO::LSHIFT_ASSIGN}, {">>=", TO::RSHIFT_ASSIGN}, {"==", TO::EQUATE},
+        {"++", TO::INCREMENT}, {"--", TO::DECREMENT}, {"!=", TO::NOT_EQUAL},
+        {"%=", TO::MOD_ASSIGN}, {"^=", TO::XOR_ASSIGN}, {"&=", TO::AND_ASSIGN}, 
+        {"*=", TO::MULT_ASSIGN}, {"-=", TO::SUB_ASSIGN}, {"+=", TO::ADD_ASSIGN}, 
+        {"/=", TO::DIV_ASSIGN}, {"|=", TO::OR_ASSIGN}, {"<<", TO::LSHIFT}, 
+        {">>", TO::RSHIFT}, {"<=", TO::LTE}, {">=", TO::GTE}, {"&&", TO::LOGICAL_AND},
+        {"||", TO::LOGICAL_OR}, {"!", TO::LOGICAL_NOT}, {"=", TO::ASSIGN}, 
+        {"-", TO::SUB}, {"+", TO::ADD}, {"*", TO::MULT}, {"&", TO::AND}, 
+        {"^", TO::XOR}, {"%", TO::MOD}, {"/", TO::DIV}, {">", TO::GT}, 
+        {"<", TO::LT}, {"|", TO::OR}
     };
 
     const std::unordered_map<std::string, Token::Keyword> keyword_map = {
@@ -212,38 +186,6 @@ std::vector<std::pair<std::variant<
                         tokens.push_back({Token::Identifier::BASE, buffer});
                     }
 
-                    
-                    std::string tok;
-                    int tokval;
-                    switch (tokens.back().first.index()) {
-                        case 0:
-                            tok = "Token::Keyword";
-                            tokval = int(std::get<Token::Keyword>(tokens.back().first));
-                            break;
-                        
-                        case 1:
-                            tok = "Token::Operator";
-                            tokval = int(std::get<Token::Operator>(tokens.back().first));
-                            break;
-
-                        case 2:
-                            tok = "Token::Delimiter";
-                            tokval = int(std::get<Token::Delimiter>(tokens.back().first));
-                            break;
-
-                        case 3:
-                            tok = "Token::Literal";
-                            tokval = int(std::get<Token::Literal>(tokens.back().first));
-                            break;
-                        
-                        case 4:
-                            tok = "Token::Identifier";
-                            tokval = int(std::get<Token::Identifier>(tokens.back().first));
-                            break;
-                    }
-
-                    // std::cout << "<" << tok << "::" << std::to_string(tokval) << ", " << (tokens.back().second).value_or("") << ">\n";
-                        
                     i = idx - 1;
                     buffer.clear();
                     break;
