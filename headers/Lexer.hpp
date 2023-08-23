@@ -19,8 +19,6 @@ bool sortfn(std::string& a, std::string& b) {
     return a.length() < b.length();
 }
 
-
-
 namespace Token {
     enum class Identifier {
         BASE,
@@ -86,6 +84,14 @@ private:
         op1 = "!=-*&^%/><|";
 
     using TK = Token::Keyword;
+    using TD = Token::Delimiter;
+
+    const std::unordered_map<char, Token::Delimiter> delimiter_map = {
+        {'{', TD::L_CURLY}, {'}', TD::R_CURLY}, {'(', TD::L_PARENTHESIS},
+        {')', TD::R_PARENTHESIS}, {'[', TD::L_SQUARE}, {']', TD::L_CURLY},
+        {'<', TD::L_ANGLED}, {'>', TD::R_ANGLED}, {';', TD::SEMICOLON}
+    };
+
     const std::unordered_map<std::string, Token::Keyword> keyword_map = {
         {"or", TK::OR}, {"do", TK::DO}, {"if", TK::IF},
         {"int", TK::INT}, {"not", TK::NOT}, {"new", TK::NEW},
@@ -149,8 +155,6 @@ private:
     };
     bool isOperator(std::string& buf);
     bool isKeyword(std::string& buf);
-
-
 };
 
 void Lexer::file_read(std::string& path) {
@@ -178,15 +182,17 @@ std::vector<std::pair<std::variant<
 
     for (int i = 0; i < file_content.length(); i++) {
 
-        // if (true) {
-
-        // }
+        if (delimiter_map.count(file_content[i]) != 0) {
+            std::string delim;
+            delim += file_content[i];
+            tokens.push_back({delimiter_map.at(file_content[i]), delim});
+            continue;
+        }
         
         // identifiers or keywords
         if (isalpha(file_content[i]) || file_content[i] == '_') {
             buffer += file_content[i];
             for (int idx = i+1; idx < file_content.length(); idx++) {
-
                 if (isalnum(file_content[idx]) || file_content[idx] == '_')
                     buffer += file_content[idx];
                 else {
@@ -236,7 +242,7 @@ std::vector<std::pair<std::variant<
                             break;
                     }
 
-                    std::cout << "<" << tok << "::" << std::to_string(tokval) << ", " << (tokens.back().second).value_or("") << ">\n";
+                    // std::cout << "<" << tok << "::" << std::to_string(tokval) << ", " << (tokens.back().second).value_or("") << ">\n";
                         
                     i = idx - 1;
                     buffer.clear();
