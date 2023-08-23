@@ -13,13 +13,6 @@
 #include <vector>
 #include <optional>
 #include <variant>
-// #include <type_traits>
-// #include <utility>
-// #include <iomanip>
-
-bool sortfn(std::string& a, std::string& b) {
-    return a.length() < b.length();
-}
 
 class Lexer {
 public:
@@ -155,6 +148,27 @@ std::vector<std::pair<std::variant<
     std::string buffer;
 
     for (int i = 0; i < file_content.length(); i++) {
+
+        // remove comments
+        if (i < file_content.length() - 1 && file_content.substr(i, 2) == "//") {
+            for (int idx = i+2; idx < file_content.length(); idx++) {
+                if (file_content[idx] == '\n') {
+                    i = idx + 1;
+                    break;
+                }
+            }
+        }
+
+        if (i < file_content.length() - 1 && file_content.substr(i, 2) == "/*") {
+            for (int idx = i+2; idx < file_content.length(); idx++) {
+                if (idx < file_content.length() - 1 && file_content.substr(idx, 2) == "*/") {
+                    i = idx + 2;
+                    break;
+                }
+            }
+        }
+
+        // Region is now free from comments
 
         if (delimiter_map.count(file_content[i]) != 0) {
             std::string delim;
