@@ -1,3 +1,4 @@
+```
 # cpp-compiler
 
 ### An attempt at making a C++ compiler, in C++
@@ -29,3 +30,4 @@ $$
     S = [int\_lit]\newline
 
 $$
+```
