@@ -120,8 +120,8 @@ private:
         "int", "char", "long", "void", "bool", "float", "short", "double",
         "wchar_t", "char8_t", "char16_t", "char32_t"
     };
-    bool isOperator(std::string& buf);
-    bool isKeyword(std::string& buf);
+    int isOperator(int idx);
+    // bool isKeyword(std::string& buf);
 };
 
 void Lexer::file_read(std::string& path) {
@@ -142,6 +142,7 @@ void Lexer::file_read(std::string& path) {
 
 
 std::vector<std::pair<std::variant<
+    // Token types
     Token::Keyword, Token::Operator, Token::Delimiter, Token::Literal, Token::Identifier
 >, std::optional<std::string>>> Lexer::analyze() {
     
@@ -149,7 +150,7 @@ std::vector<std::pair<std::variant<
 
     for (int i = 0; i < file_content.length(); i++) {
 
-        // remove comments
+        // remove comments 
         if (i < file_content.length() - 1 && file_content.substr(i, 2) == "//") {
             for (int idx = i+2; idx < file_content.length(); idx++) {
                 if (file_content[idx] == '\n') {
@@ -169,7 +170,8 @@ std::vector<std::pair<std::variant<
         }
 
         // Region is now free from comments
-
+        
+        // Delimiters
         if (delimiter_map.count(file_content[i]) != 0) {
             std::string delim;
             delim += file_content[i];
@@ -184,15 +186,12 @@ std::vector<std::pair<std::variant<
                 if (isalnum(file_content[idx]) || file_content[idx] == '_')
                     buffer += file_content[idx];
                 else {
-                    // check for keyword, else token
-                    if (keyword_map.count(buffer) != 0 && 
-                        (idx == file_content.length() - 1 || file_content[idx+1] != ' ' || file_content[idx+1] != '\n')) {
+                    // check for keyword (followed by whitespace or delimiter) else token
+                    if (keyword_map.count(buffer) != 0 && (
+                            idx == file_content.length() - 1 || file_content[idx+1] != ' ' ||
+                            file_content[idx+1] != '\n' || delimiter_map.count(file_content[idx+1]) != 0
+                        )) {
                         tokens.push_back({keyword_map.at(buffer), buffer});
-                        // std::nullopt});
-                    } 
-                    // check for type casts
-                    else if (type_keywords.count(buffer) != 0) {
-                        tokens.push_back({keyword_map.at(buffer),  buffer});
                         // std::nullopt});
                     }
                     // Definitely an identifier
@@ -207,27 +206,37 @@ std::vector<std::pair<std::variant<
             }
         }
 
+        // Operators (correctly identify template braces)
+        int opsize;
+        if (opsize = isOperator(i)) {
+            i += opsize - 1;
+        }
+
     }
 
     return tokens;
 }
 
-bool Lexer::isOperator(std::string& buf) {
-    
-    // Check for 3 length operators
-    for (int i = 0; i < buf.length(); i += 3) {
+int Lexer::isOperator(int idx) {
+    std::string sub;
 
+    for (int oplen = 3; oplen > 0; oplen--) {
+        if (file_content.length() - idx >= oplen) {
+            sub = file_content.substr(idx, oplen);
+            if (operator_map.count(sub) != 0) {
+                tokens.push_back({operator_map.at(sub), sub});
+                return oplen;
+            }
+        }
     }
-
-
-    return false;
     
-}
-
-bool Lexer::isKeyword(std::string& buf) {
-
-
-
-
     return false;
 }
+
+// bool Lexer::isKeyword(std::string& buf) {
+
+
+
+
+//     return false;
+// }
