@@ -5,19 +5,9 @@
 ----------
 
 - ### Grammar for an Integer Literal in C++
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-    img {
-        filter: invert(0.9);
-    }
-</style>
-</head>
-<body>
 <!-- $
 \LARGE G = \{V_n,\ V_t,\ P,\ S\}
-$ --> <img style="transform: translateY(0.1em);" src="svg/YETNfGwM43.svg">
+$ --> <img style="transform: translateY(0.1em) ;" src="svg/YETNfGwM43.svg">
 <!-- $\LARGE
 V_n = \{[int\_lit],\ [hex\_lit],\ [dec\_lit],\ [oct\_lit], 
 $ --> <img style="transform: translateY(0.1em);" src="svg/sb2Tyxa8Ik.svg">
@@ -43,5 +33,3 @@ $ --> <img style="transform: translateY(0.1em);" src="svg/adSI2maSxO.svg">
 <!-- $\LARGE
 S = [int\_lit]\newline
 $ --> <img style="transform: translateY(0.1em);" src="svg/2HOT6DW4RO.svg">
-</body>
-</html>
