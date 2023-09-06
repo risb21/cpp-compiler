@@ -6,12 +6,9 @@
 ----------
 
 - ### Grammar for an Integer Literal in C++ 
-$$ 
-    \LARGE
-
-    G = \{V_n,\ V_t,\ P,\ S\}\newline\ \newline
-    V_n = \{[int\_lit],\ [hex\_lit],\ [dec\_lit],\ [oct\_lit],\newline \qquad\qquad [bin\_lit],\ [hex\_dig],\ 
-    [opt\_exp],\ [opt\_type]\}\newline
+$$\LARGE G = \{V_n,\ V_t,\ P,\ S\}\newline\ \newline $$
+$$ \LARGE V_n = \{[int\_lit],\ [hex\_lit],\ [dec\_lit],\ [oct\_lit],$$
+$$\LARGE\qquad\qquad\quad [bin\_lit],\ [hex\_dig],\ [opt\_exp],\ [opt\_type]\}\newline
     V_t = \text{\{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, a, b, c, d, e, f, }\newline\qquad\text{A, B, C, D, E, F, u, U, l, L, $'$\}}\newline\ \newline
     \begin{align*}
     P = \{\ [int\_lit] &\Rightarrow [hex\_lit] \ | \ 
@@ -26,6 +23,7 @@ $$
     \end{align*}
     \newline\
     \newline
+    
     
     S = [int\_lit]\newline
 
